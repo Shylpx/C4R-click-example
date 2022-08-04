@@ -4,7 +4,6 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import { colorCategories, fetchLayerData } from '@deck.gl/carto';
 import { selectSourceById, updateLayer } from '@carto/react-redux';
 import { useCartoLayerProps } from '@carto/react-api';
-import htmlForFeature from 'utils/htmlForFeature';
 
 import { LEGEND_TYPES } from '@carto/react-ui';
 
@@ -36,7 +35,7 @@ const layerConfig = {
   },
 };
 
-export default function StoresLayer() {
+export default function StoresLayer(setPopupInfo) {
   const dispatch = useDispatch();
   const { storesLayer } = useSelector((state) => state.carto.layers);
   const source = useSelector((state) => selectSourceById(state, storesLayer?.source));
@@ -77,7 +76,7 @@ export default function StoresLayer() {
         othersColor: OTHERS_COLOR.Others,
       }),
       getLineColor: [0, 0, 0],
-      getPointRadius: 3,
+      getPointRadius: 6,
       getLineWidth: 0,
       onDataLoad: (data) => {
         dispatch(
@@ -88,22 +87,18 @@ export default function StoresLayer() {
         );
         cartoLayerProps.onDataLoad && cartoLayerProps.onDataLoad(data);
       },
-      onHover: (info) => {
+      onClick: (info) => {
         if (info?.object) {
-          info.object = {
-            html: htmlForFeature({
-              title: `Store ${info.object.properties.store_id}`,
-              feature: info.object,
-              formatter: {
-                type: 'currency',
-                columns: ['revenue'],
-              },
-              includeColumns: ['revenue'],
-              showColumnName: false,
-            }),
-          };
+          setPopupInfo({
+            coordinates: info.object.geometry.coordinates,
+            propsObject: {
+              storeId: info.object.properties.store_id
+            },
+            closeOnMove: false,
+            showCloseButton: false,
+          })
         }
-      },
+      }
     });
   }
 }

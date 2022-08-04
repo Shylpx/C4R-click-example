@@ -48,12 +48,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Map({ layers }) {
+export default function Map({ layers, popup, setPopup }) {
   const basemap = useSelector((state) => BASEMAPS[state.carto.basemap]);
   const classes = useStyles();
 
   const mapsAvailable = {
-    [BASEMAP_TYPES.mapbox]: () => <DeckGLComponent layers={layers} />,
+    [BASEMAP_TYPES.mapbox]: () => <DeckGLComponent layers={layers} popup={popup} setPopup={setPopup} />,
     [BASEMAP_TYPES.gmaps]: () => <GoogleMapsComponent layers={layers} />,
   };
 

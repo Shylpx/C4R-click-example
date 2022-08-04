@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, useState } from 'react';
 import { BASEMAPS } from '@carto/react-basemaps';
 import ZoomControl from 'components/common/ZoomControl';
 import { getLayers } from 'components/layers';
@@ -83,12 +83,14 @@ const useStyles = makeStyles((theme) => ({
 export default function MapContainer() {
   const isGmaps = useSelector((state) => BASEMAPS[state.carto.basemap].type === 'gmaps');
   const classes = useStyles();
+  const [popupInfo, setPopupInfo] = useState(null);
 
-  const layers = getLayers();
+  const layers = getLayers(setPopupInfo);
 
   return (
     <Grid item className={`${classes.mapWrapper} ${isGmaps ? classes.gmaps : ''}`}>
-      <Map layers={layers} />
+      <Map layers={layers} popup={popupInfo} setPopup={setPopupInfo} />
+
       <Hidden xsDown>
         <ZoomControl className={classes.zoomControl} showCurrentZoom />
         <FeatureSelectionWidget className={classes.drawingTool} />
