@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { colorCategories, fetchLayerData } from '@deck.gl/carto';
@@ -40,6 +40,7 @@ export default function StoresLayer(setPopupInfo) {
   const { storesLayer } = useSelector((state) => state.carto.layers);
   const source = useSelector((state) => selectSourceById(state, storesLayer?.source));
   const cartoLayerProps = useCartoLayerProps({ source });
+  const [selectedId, setSelectedId] = useState(null)
 
   // The CartoLayer only works with dynamic tiles so feature dropping can
   // happen at lower zoom levels. If feature dropping happens, the widgets
@@ -75,9 +76,9 @@ export default function StoresLayer(setPopupInfo) {
         colors: Object.values(CATEGORY_COLORS),
         othersColor: OTHERS_COLOR.Others,
       }),
-      getLineColor: [0, 0, 0],
-      getPointRadius: 6,
-      getLineWidth: 0,
+      getLineColor: (f) => [f.properties.store_id === selectedId ? 255 : 0, 0, 0],
+      getPointRadius: (f) => f.properties.store_id === selectedId ? 12 : 6,
+      getLineWidth: (f) => f.properties.store_id === selectedId ? 3 : 0,
       onDataLoad: (data) => {
         dispatch(
           updateLayer({
@@ -86,6 +87,16 @@ export default function StoresLayer(setPopupInfo) {
           })
         );
         cartoLayerProps.onDataLoad && cartoLayerProps.onDataLoad(data);
+      },
+      updateTriggers: {
+        getLineColor: selectedId,
+        getPointRadius: selectedId,
+        getLineWidth: selectedId
+      },
+      onHover: (info) => {
+        if (info?.object) {
+          setSelectedId(info.object.properties.store_id)
+        }
       },
       onClick: (info) => {
         if (info?.object) {
