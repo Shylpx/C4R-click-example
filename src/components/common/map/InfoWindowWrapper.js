@@ -51,6 +51,12 @@ function coordinates2pixels(coordinates, deckInstance) {
 
       if (viewport) {
         pixels = viewport.project(coordinates)
+
+        if (viewport.width < pixels[0] + 50) {
+          pixels[0] -= 50
+        } else if (pixels[0] < 50) {
+          pixels[0] += 50
+        }
       }
     } catch (e) {
       // console.warn('viewManager in deckInstance not ready yet')
