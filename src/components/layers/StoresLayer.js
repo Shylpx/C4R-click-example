@@ -89,6 +89,7 @@ export default function StoresLayer(setPopupInfo) {
         cartoLayerProps.onDataLoad && cartoLayerProps.onDataLoad(data);
       },
       updateTriggers: {
+        ...cartoLayerProps.updateTriggers, // getting existing update triggers
         getLineColor: selectedId,
         getPointRadius: selectedId,
         getLineWidth: selectedId
